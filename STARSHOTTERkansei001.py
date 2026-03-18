@@ -329,7 +329,7 @@ class StarSoldier:
             pyxel.text(bx-3, by-2, stage_letters.get(self.stage, "X"), 7)
 
         if self.scene == SCENE_TITLE:
-            pyxel.text(55, 50, "STAR SHOTTER!", pyxel.frame_count % 16)
+            pyxel.text(55, 50, "STAR SHOTTER!KAI", pyxel.frame_count % 16)
             pyxel.text(40, 70, "PRESS START/RETURN", 7)
             pyxel.text(46, 95, "(C)MIRAI WORK/M.T", 7)
         elif self.scene == SCENE_GAMEOVER:
