@@ -14,7 +14,7 @@ POWER_MAX = 4
 
 class StarSoldier:
     def __init__(self):
-        pyxel.init(W, H, title="STAR SHOTTER! EVO", fps=60)
+        pyxel.init(W, H, title="STAR SHOTTER!KAI", fps=60)
         self.init_sound()  # 音楽・効果音の定義
         self.stage_colors = {
             1: (7, 0), 2: (12, 1), 3: (10, 5), 4: (8, 2), 5: (14, 0)
