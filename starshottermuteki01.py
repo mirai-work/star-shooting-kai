@@ -107,17 +107,19 @@ class StarSoldier:
         random.seed(old_seed)
 
     def update(self):
-        # --- 1. 全シーン共通の更新 (背景など) ---
-        self.scene_timer += 1
-        for s in self.space_stars:
-            if self.scene == SCENE_STAGE_CLEAR:
-                s[1] += s[2] * (1 + self.warp_effect * 4)
-            else:
-                s[1] += s[2]
-            if s[1] > H: s[1], s[0] = 0, random.randint(0, W)
-
-        # --- 2. コマンド判定 (ポーズ中を含め、どのシーンでも入力を受け付ける) ---
         key_pressed = None 
+        for s in self.space_stars:
+            s[1] += s[2]
+            if s[1] > H: s[1] = 0; s[0] = random.randint(0, W)
+        for s in self.stars:
+            s[1] += s[2]
+            if s[1] > H: s[1], s[0] = 0, random.randint(0, W)
+        if not hasattr(self, 'scene_timer'): self.scene_timer = 0
+        self.scene_timer += 1
+
+
+        if self.scene in (SCENE_TITLE, SCENE_PAUSE, SCENE_GAMEOVER, SCENE_BOSS):
+            key_pressed = None 
         if pyxel.btnp(pyxel.KEY_UP) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_UP): key_pressed = "UP"
         elif pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN): key_pressed = "DOWN"
         elif pyxel.btnp(pyxel.KEY_LEFT) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_LEFT): key_pressed = "LEFT"
@@ -126,11 +128,18 @@ class StarSoldier:
         elif pyxel.btnp(pyxel.KEY_Z) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_A): key_pressed = "A"
 
         if key_pressed:
-            # ステージ選択チート判定
+            # ステージ選択チート判定 (UP, UP, DOWN, DOWN, LEFT, RIGHT, LEFT, RIGHT)
             if key_pressed == self.command_list[self.command_index]:
                 self.command_index += 1
                 if self.command_index >= len(self.command_list):
-                    pyxel.play(3, 2); self.cheat_enabled = True; self.command_index = 0
+                    limit_table = {1: 1, 2: 1, 3: 2, 4: 3, 5: 5}
+                    limit = limit_table.get(self.stage, 1)
+                    if self.used_cheats < limit:
+                        pyxel.play(3, 2)
+                        self.cheat_enabled = True
+                        self.power, self.barrier_hp = POWER_MAX, 3
+                        self.used_cheats += 1
+                    self.command_index = 0
             else:
                 self.command_index = 1 if key_pressed == self.command_list[0] else 0
             
@@ -138,22 +147,36 @@ class StarSoldier:
             if key_pressed == self.m_list[self.m_index]:
                 self.m_index += 1
                 if self.m_index >= len(self.m_list):
-                    pyxel.play(3, 1) # 成功音
+                    pyxel.play(3, 1)
                     self.muteki_enabled = not self.muteki_enabled
                     self.m_index = 0
             else:
                 self.m_index = 1 if key_pressed == self.m_list[0] else 0
-
-        # --- 3. シーン別ロジック ---
+                
+            for s in self.space_stars:
+                s[1] += s[2]
+                if s[1] > H: s[1] = 0; s[0] = random.randint(0, W)
+            for s in self.stars:
+                s[1] += s[2]
+                if s[1] > H: s[1], s[0] = 0, random.randint(0, W)
+            if not hasattr(self, 'scene_timer'): self.scene_timer = 0
+            self.scene_timer += 1
+        # --- シーン別ロジック（重複する判定を削除し、既存の動きを維持） ---
         if self.scene == SCENE_TITLE:
             if self.scene_timer == 1: self.cheat_enabled = False
             self.update_play_logic() 
             if self.cheat_enabled:
+                # 既存のステージ切り替え処理
                 if pyxel.btnp(pyxel.KEY_UP) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_UP):
                     self.stage = self.stage - 1 if self.stage > 1 else MAX_STAGE; pyxel.play(3, 3)
                 elif pyxel.btnp(pyxel.KEY_DOWN) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_DPAD_DOWN):
                     self.stage = self.stage + 1 if self.stage < MAX_STAGE else 1; pyxel.play(3, 3)
             
+            if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_START): 
+                self.handle_start_button()
+            elif self.scene_timer > 840 or pyxel.btnp(pyxel.KEY_SPACE) or self.check_any_button():
+                self.scene = SCENE_TUTORIAL; self.scene_timer = 0; pyxel.playm(1, loop=True)           
+                 
             if pyxel.btnp(pyxel.KEY_RETURN) or pyxel.btnp(pyxel.GAMEPAD1_BUTTON_START): 
                 self.handle_start_button()
             elif self.scene_timer > 840 or pyxel.btnp(pyxel.KEY_SPACE) or self.check_any_button():
