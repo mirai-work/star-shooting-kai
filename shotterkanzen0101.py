@@ -5,6 +5,7 @@ import os
 
 mapping = "03000000490b00004406000000000000,ASCII Game Controller,a:b0,b:b1,x:b3,y:b2,back:b8,start:b9,leftshoulder:b4,rightshoulder:b5,dpup:b11,dpdown:b12,dpleft:b13,dpright:b14,platform:Windows,"
 os.environ["SDL_GAMECONTROLLERCONFIG"] = mapping
+
 # --- Constants ---
 W, H = 160, 120
 SCENE_TITLE, SCENE_PLAY, SCENE_PAUSE, SCENE_BOSS = 0, 1, 2, 3
