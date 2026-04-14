@@ -1,11 +1,6 @@
 import pyxel
 import random
 import math
-import os
-
-# 十字キーをボタン(b)として再定義し、末尾にカンマを追加した修正版
-mapping = "03000000490b00004406000000000000,ASCII Game Controller,a:b0,b:b1,x:b3,y:b2,back:b8,start:b9,leftshoulder:b4,rightshoulder:b5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,platform:Windows,"
-os.environ["SDL_GAMECONTROLLERCONFIG"] = mapping
 
 
 # --- Constants ---
